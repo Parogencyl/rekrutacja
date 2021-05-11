@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddPostRequest;
+use App\Http\Resources\PostCatResource;
+use App\Http\Resources\PostResource;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\PostCat;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -21,10 +24,15 @@ class PostController extends Controller
     {
         $data = $request->validated();
 
+        $categoriesRequest = $data['categoriesArray'];
+        $categories = explode(',', $categoriesRequest);
+
         Post::create([
             'text' => $data['text'],
-            'category_id' => (int) $data['category'],
         ]);
+
+        $post = Post::where('text', $data['text'])->first();
+        $post->category()->attach($categories);
 
         return redirect()->route('get.post.create')->with('success', 'Post został dodany');
     }
@@ -41,10 +49,13 @@ class PostController extends Controller
     {
         $data = $request->validated();
         $id = $request->input('postId');
+        $categoriesRequest = $data['categoriesArray'];
+        $categories = explode(',', $categoriesRequest);
 
         $post = Post::findOrFail($id);
         $post->text = $data['text'];
-        $post->category_id = $data['category'];
+        $post->category()->detach();
+        $post->category()->attach($categories);
         $post->save();
 
         return redirect()->route('get.post.update',['postId' => $id])->with('success', 'Post został zedytowany');
@@ -53,11 +64,14 @@ class PostController extends Controller
     public function indexApi(int $categoryId = null)
     {
         if($categoryId){
-            $posts = POST::with('category')->where('category_id', $categoryId)->get();
-        } else {
             $posts = POST::with('category')->get();
+        } else {
+            $posts = POST::get();
         }
 
-        return $posts->toJson();
+        // $data = PostCat::get(); 
+        // return PostCatResource::collection($data);
+        return PostResource::collection($posts);
     }
+
 }

@@ -23,26 +23,31 @@
         </div>
 
         <div class="form-group row">
-            <label for="inputCategory" class="col-sm-2 col-form-label font-weight-bold">Kategoria</label>
+            <label for="inputCategory" class="col-sm-2 col-form-label font-weight-bold">Wybierz nowe kategorie: </label>
             <div class="col-sm-10">
-                <select id="inputCategory" value="{{ old('category') }}" name="category"
-                    class="form-control @error('category') is-invalid @enderror">
 
+                <select id="inputCategory" value="{{ old('categoriesArray') }}" name="category"
+                    class="form-control @error('category') is-invalid @enderror"
+                    onchange="setCategories(this.value, {{$categories}})">
+                    <option disabled selected> -- Wybierz kategorię -- </option>
                     @foreach ($categories ?? [] as $category)
-                    @if ($category['name'] == $post->category->name)
-                    <option value="{{ $category['id'] }}" class="font-weight-bold" selected> {{ $category['name'] }}
-                    </option>
-                    @else
-                    <option value="{{ $category['id'] }}"> {{ $category['name'] }} </option>
-                    @endif
+                    <option value="{{ $category['id'] }}">
+                        {{ $category['name'] }} </option>
                     @endforeach
-
                 </select>
-                @error('category')
+
+                @error('categoriesArray')
                 <div class="invalid-feedback d-block"> {{ $message }} </div>
                 @enderror
             </div>
+
+            <input type="hidden" id="categoriesArray" value="" name="categoriesArray">
+
+            <div id="allCategories" class="mt-3">
+            </div>
+
         </div>
+
         <div class="d-flex justify-content-center">
             <button type="submit" class="btn btn-lg btn-success"> Edytuj </button>
         </div>
@@ -58,5 +63,7 @@
 
 
 </div>
+
+<script src="{{ asset('js/postForm.js') }}"></script>
 
 @endsection

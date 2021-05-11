@@ -25,7 +25,7 @@ class AddPostRequest extends FormRequest
     {
         return [
             'text' => 'required|min:3',
-            'category' => 'required'
+            'categoriesArray' => 'required'
         ];
     }
 
@@ -34,7 +34,7 @@ class AddPostRequest extends FormRequest
         return [
             'text.required' => 'Należy wypełnić powyższe pole',
             'text.min' => 'Podana treść jest zbyt krótka',
-            'category.required' => 'Kategoria nie została wybrana',
+            'categoriesArray.required' => 'Należy wybrać przynajmniej jedną kategorię',
         ];
     }
 }
