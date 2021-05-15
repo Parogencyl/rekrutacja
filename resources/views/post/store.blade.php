@@ -5,7 +5,14 @@
 <div>
     <h3 class="text-center mb-5 font-weight-bold"> Formularz dodawania postu </h3>
 
-    <form action="{{ route('store.post') }}" method="POST" class="form">
+    @if ($message = Session::get('success'))
+    <div class="alert alert-success alert-block col-12 my-3">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>{{ $message }}</strong>
+    </div>
+    @endif
+
+    <form action="{{ route('post.store') }}" method="POST" class="form">
         @csrf
         <div class="form-group row">
             <label for="inputText" class="col-sm-2 col-form-label font-weight-bold">Treść</label>
@@ -46,14 +53,6 @@
             <button type="submit" class="btn btn-lg btn-success"> Dodaj </button>
         </div>
     </form>
-
-    @if ($message = Session::get('success'))
-    <div class="alert alert-success alert-block col-12 my-3">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <strong>{{ $message }}</strong>
-    </div>
-    @endif
-
 
 </div>
 

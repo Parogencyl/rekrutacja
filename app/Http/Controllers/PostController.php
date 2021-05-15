@@ -3,75 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddPostRequest;
-use App\Http\Resources\PostCatResource;
+use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
-use App\Models\Category;
-use App\Models\Post;
-use App\Models\PostCat;
-use Illuminate\Http\Request;
+use App\Repository\PostManage\CategoryRepository;
+use App\Repository\PostManage\PostRepository;
 use Illuminate\View\View;
 
 class PostController extends Controller
 {
+    private PostRepository $postRepository;
+    private CategoryRepository $categoryRepository;
+
+    public function __construct(PostRepository $postRepository, CategoryRepository $categoryRepository)
+    {
+        $this->postRepository = $postRepository;
+        $this->categoryRepository = $categoryRepository;
+    }
+
     public function index():View
     {
-        $categories = Category::select('id', 'name')->get();
-
+        $categories = $this->categoryRepository->all();
+        
         return view('post.store', ['categories' => $categories]);
     }
 
     public function store(AddPostRequest $request)
     {
         $data = $request->validated();
-
-        $categoriesRequest = $data['categoriesArray'];
-        $categories = explode(',', $categoriesRequest);
-
-        Post::create([
-            'text' => $data['text'],
-        ]);
-
-        $post = Post::where('text', $data['text'])->first();
-        $post->category()->attach($categories);
-
-        return redirect()->route('get.post.create')->with('success', 'Post został dodany');
+        $this->postRepository->add($data);
+        
+        return redirect()->route('post.get.create')->with('success', 'Post został dodany');
     }
 
     public function show(int $postId):View
     {
-        $post = Post::with('category')->find($postId);
-        $categories = Category::select('id', 'name')->get();
+        $post = $this->postRepository->get($postId);
+        $categories = $this->categoryRepository->all();
 
         return view('post.update', ['post' => $post, 'categories' => $categories]);
     }
 
-    public function update(AddPostRequest $request)
+    public function update(UpdatePostRequest $request)
     {
         $data = $request->validated();
-        $id = $request->input('postId');
-        $categoriesRequest = $data['categoriesArray'];
-        $categories = explode(',', $categoriesRequest);
-
-        $post = Post::findOrFail($id);
-        $post->text = $data['text'];
-        $post->category()->detach();
-        $post->category()->attach($categories);
-        $post->save();
-
-        return redirect()->route('get.post.update',['postId' => $id])->with('success', 'Post został zedytowany');
+        $this->postRepository->update($data);
+        
+        return redirect()->route('post.get.update',['postId' => $data['postId']])->with('success', 'Post został zedytowany');
     }
 
     public function indexApi(int $categoryId = null)
     {
-        if($categoryId){
-            $posts = POST::with('category')->get();
-        } else {
-            $posts = POST::get();
-        }
+        $data = $this->postRepository->postApi($categoryId);
 
-        // $data = PostCat::get(); 
-        // return PostCatResource::collection($data);
-        return PostResource::collection($posts);
+        if($categoryId){
+            return new PostResource($data);
+        } else {
+            return PostResource::collection($data);
+        }
     }
 
 }

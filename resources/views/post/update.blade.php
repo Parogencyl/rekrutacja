@@ -5,7 +5,14 @@
 <div>
     <h3 class="text-center mb-5 font-weight-bold"> Edycja postu </h3>
 
-    <form action="{{ route('update.post') }}" method="POST" class="form">
+    @if ($message = Session::get('success'))
+    <div class="alert alert-success alert-block col-12 my-3">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>{{ $message }}</strong>
+    </div>
+    @endif
+
+    <form action="{{ route('post.update') }}" method="POST" class="form">
         @csrf
         @method('put')
 
@@ -19,6 +26,17 @@
                 @error('text')
                 <div class="invalid-feedback d-block"> {{ $message }} </div>
                 @enderror
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="category" class="col-sm-2 col-form-label font-weight-bold">Aktualne kategorie: </label>
+            <div class="col-sm-10">
+                <div id="category" class="mt-3">
+                    @foreach ($post->category as $category)
+                    <div class='btn btn-primary btn mx-2'> {{ $category->name }} </div>
+                    @endforeach
+                </div>
             </div>
         </div>
 
@@ -39,12 +57,12 @@
                 @error('categoriesArray')
                 <div class="invalid-feedback d-block"> {{ $message }} </div>
                 @enderror
+
+                <div id="allCategories" class="mt-3">
+                </div>
             </div>
 
             <input type="hidden" id="categoriesArray" value="" name="categoriesArray">
-
-            <div id="allCategories" class="mt-3">
-            </div>
 
         </div>
 
@@ -53,14 +71,6 @@
         </div>
 
     </form>
-
-    @if ($message = Session::get('success'))
-    <div class="alert alert-success alert-block col-12 my-3">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <strong>{{ $message }}</strong>
-    </div>
-    @endif
-
 
 </div>
 

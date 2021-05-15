@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddCategoryRequest;
-use App\Models\Category;
-use Illuminate\Http\Request;
+use App\Repository\PostManage\CategoryRepository;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
+    private CategoryRepository $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
+
     public function index():View
     {
         return view('category.store');
@@ -18,11 +24,9 @@ class CategoryController extends Controller
     {
         $data = $request->validated();
 
-        Category::create([
-            'name' => $data['name'],
-        ]);
+        $this->categoryRepository->add($data);
 
-        return redirect()->route('get.category.create')
+        return redirect()->route('category.get.create')
         ->with(['success' => "Kategoria {$data['name']} została dodana"]);
     }
 }

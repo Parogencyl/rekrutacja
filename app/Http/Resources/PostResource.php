@@ -20,9 +20,9 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'text' => $this->text,
-            'category_id' => CategoriesResource::collection(Post::with('category')->where('posts.id', 'categories.id')->get()),
-            // 'created_at' => $this->created_at,
-            // 'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'category' => CategoriesResource::collection($this->category),
         ];
     }
 }
